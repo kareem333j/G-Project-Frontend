@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   UserType,
@@ -52,7 +52,8 @@ interface RegisterProviderProps {
   children: ReactNode;
 }
 
-export const RegisterProvider = ({ children }: RegisterProviderProps) => {
+// Internal provider that uses useSearchParams
+function RegisterProviderInternal({ children }: RegisterProviderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -314,5 +315,20 @@ export const RegisterProvider = ({ children }: RegisterProviderProps) => {
     <RegisterContext.Provider value={value}>
       {children}
     </RegisterContext.Provider>
+  );
+}
+
+// Public provider with Suspense boundary
+export const RegisterProvider = ({ children }: RegisterProviderProps) => {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-bluelight-1">Loading...</div>
+      </div>
+    }>
+      <RegisterProviderInternal>
+        {children}
+      </RegisterProviderInternal>
+    </Suspense>
   );
 };
