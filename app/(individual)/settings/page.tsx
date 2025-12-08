@@ -2,92 +2,145 @@
 "use client";
 import { motion } from "framer-motion";
 import MainButton from "@/components/custom/MainButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUserType } from "@/context/UserTypeContext";
+import { storage } from "../lib/sharedData";
+
+const SETTINGS_KEY = 'individual_settings';
+const USER_INFO_KEY = 'individual_user_info';
+
+const defaultSettings = {
+    notifications: true,
+    emailUpdates: false,
+    darkMode: true,
+    language: 'english',
+    timezone: 'UTC+2',
+    dataSharing: false
+};
+
+const defaultUserInfo = {
+    name: 'User Name',
+    email: 'user@example.com',
+    phone: '+1234567890',
+    birthDate: '1990-01-01'
+};
 
 const SettingsPage = () => {
     const router = useRouter();
+    const { logout } = useUserType();
 
-    const [settings, setSettings] = useState({
-        notifications: true,
-        emailUpdates: false,
-        darkMode: true,
-        language: 'english',
-        timezone: 'UTC+2',
-        dataSharing: false
-    });
+    const [settings, setSettings] = useState(defaultSettings);
+    const [userInfo, setUserInfo] = useState(defaultUserInfo);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
 
-    const [userInfo, setUserInfo] = useState({
-        name: 'User Name',
-        email: 'user@example.com',
-        phone: '+1234567890',
-        birthDate: '1990-01-01'
-    });
+    // Load settings from localStorage on mount
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        
+        const savedSettings = storage.get(SETTINGS_KEY);
+        const savedUserInfo = storage.get(USER_INFO_KEY);
+        
+        if (savedSettings) {
+            setSettings({ ...defaultSettings, ...savedSettings });
+        }
+        if (savedUserInfo) {
+            setUserInfo({ ...defaultUserInfo, ...savedUserInfo });
+        }
+    }, []);
 
     const handleSettingChange = (key: string, value: any) => {
         setSettings(prev => ({ ...prev, [key]: value }));
+        setIsDirty(true);
     };
 
     const handleUserInfoChange = (key: string, value: string) => {
         setUserInfo(prev => ({ ...prev, [key]: value }));
+        setIsDirty(true);
     };
 
-    const handleSaveSettings = () => {
-        console.log('Saving settings:', settings);
-        console.log('Saving user info:', userInfo);
-        // هنا بتكون عملية الحفظ الفعلية
-        alert('Settings saved successfully!');
+    const handleSaveSettings = async () => {
+        setIsSaving(true);
+        try {
+            // Save to localStorage
+            storage.set(SETTINGS_KEY, settings);
+            storage.set(USER_INFO_KEY, userInfo);
+            
+            // Apply theme if darkMode changed
+            if (settings.darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            
+            setIsDirty(false);
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            successMsg.textContent = 'Settings saved successfully!';
+            document.body.appendChild(successMsg);
+            setTimeout(() => {
+                successMsg.remove();
+            }, 3000);
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            alert('Failed to save settings. Please try again.');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleReset = () => {
-        setSettings({
-            notifications: true,
-            emailUpdates: false,
-            darkMode: true,
-            language: 'english',
-            timezone: 'UTC+2',
-            dataSharing: false
-        });
-        setUserInfo({
-            name: 'User Name',
-            email: 'user@example.com',
-            phone: '+1234567890',
-            birthDate: '1990-01-01'
-        });
+        if (confirm('Are you sure you want to reset all settings to default values?')) {
+            setSettings(defaultSettings);
+            setUserInfo(defaultUserInfo);
+            setIsDirty(true);
+            
+            // Clear from localStorage
+            storage.remove(SETTINGS_KEY);
+            storage.remove(USER_INFO_KEY);
+        }
+    };
+
+    const handleLogout = () => {
+        if (confirm('Are you sure you want to logout?')) {
+            logout();
+            router.push('/');
+        }
     };
 
     return (
         <div className="min-h-screen bg-cover bg-center">
             <div className="w-full flex">
-
-
                 {/* Main Content */}
-                <div className="flex-1 py-8 px-8 min-w-0">
+                <div className="flex-1 py-4 sm:py-6 md:py-8 px-4 sm:px-6 md:px-8 min-w-0">
 
                     {/* Header */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-8"
+                        className="mb-6 sm:mb-8"
                     >
-                        <h1 className="text-3xl font-bold text-bluelight-1 mb-2 text-center ">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-bluelight-1 mb-2 text-center">
                             Settings
                         </h1>
-                        <p className="text-bluelight-1/70 text-center">Manage your account settings and preferences</p>
+                        <p className="text-sm sm:text-base text-bluelight-1/70 text-center">Manage your account settings and preferences</p>
                     </motion.div>
 
                     {/* Settings Sections */}
-                    <div className="space-y-8">
+                    <div className="space-y-6 sm:space-y-8">
 
                         {/* Personal Information */}
                         <motion.div
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="bg-transparent border-2 border-bluelight-1/40 rounded-xl p-6"
+                            className="bg-transparent border-2 border-bluelight-1/40 rounded-lg sm:rounded-xl p-4 sm:p-6"
                         >
-                            <h2 className="text-2xl font-bold text-bluelight-1 mb-4">Personal Information</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-bluelight-1 mb-3 sm:mb-4">Personal Information</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                                 <div>
                                     <label className="text-bluelight-1 text-sm font-medium mb-2 block">Full Name</label>
                                     <input
@@ -241,20 +294,39 @@ const SettingsPage = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1 }}
-                        className="flex gap-4 justify-end mt-8 "
+                        className="flex flex-col sm:flex-row gap-4 justify-between mt-8"
                     >
-                        <button
-                            onClick={handleReset}
-                            className="px-6 py-3 border-2 border-bluelight-1/40 text-bluelight-1 rounded-lg hover:bg-bluelight-1/10 transition-all duration-300"
-                        >
-                            Reset to Default
-                        </button>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={handleReset}
+                                className="px-6 py-3 border-2 border-bluelight-1/40 text-bluelight-1 rounded-lg hover:bg-bluelight-1/10 transition-all duration-300"
+                            >
+                                Reset to Default
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="px-6 py-3 border-2 border-red-500/40 text-red-500 dark:text-red-400 rounded-lg hover:bg-red-500/10 transition-all duration-300"
+                            >
+                                Logout
+                            </button>
+                        </div>
                         <MainButton
                             onClick={handleSaveSettings}
-                            className="px-6 py-3 border transition-all duration-300 bg-bluelight-2 hover:bg-transparent ts"
-                            background="bg-bluelight-2 w-full h-full bottom-0 group-hover:bottom-full"
+                            disabled={!isDirty || isSaving}
+                            className={`px-6 py-3 border transition-all duration-300 ${isDirty && !isSaving ? 'bg-bluelight-2 hover:bg-transparent' : 'bg-bluelight-2/50 cursor-not-allowed opacity-60'}`}
+                            background={isDirty && !isSaving ? "bg-bluelight-2 w-full h-full bottom-0 group-hover:bottom-full" : ""}
                         >
-                            Save Settings
+                            {isSaving ? (
+                                <span className="flex items-center gap-2">
+                                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                    </svg>
+                                    Saving...
+                                </span>
+                            ) : (
+                                'Save Settings'
+                            )}
                         </MainButton>
                     </motion.div>
                 </div>

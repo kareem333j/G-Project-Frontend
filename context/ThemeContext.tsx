@@ -11,16 +11,19 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [theme, setTheme] = useState<Theme>("dark");
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         // تحميل الـ theme من localStorage بعد التحميل
-        const savedTheme = localStorage.getItem("theme") as Theme;
-        if (savedTheme) {
+        const savedTheme = localStorage.getItem("theme") as Theme | null;
+        if (savedTheme && (savedTheme === "light" || savedTheme === "dark")) {
             setTheme(savedTheme);
         }
     }, []);
 
     useEffect(() => {
+        if (!mounted) return;
         // تطبيق الـ theme على الـ document
         const root = document.documentElement;
         if (theme === "dark") {
@@ -29,7 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             root.classList.remove("dark");
         }
         localStorage.setItem("theme", theme);
-    }, [theme]);
+    }, [theme, mounted]);
 
     const toggleTheme = () => {
         setTheme((prev) => (prev === "light" ? "dark" : "light"));

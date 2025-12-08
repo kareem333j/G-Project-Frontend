@@ -44,7 +44,7 @@ export const getStatusBadge = (status: string) => {
         case 'high': return { text: 'High', color: 'bg-red-100 text-red-800' };
         case 'low': return { text: 'Low', color: 'bg-yellow-100 text-yellow-800' };
         case 'normal': return { text: 'Normal', color: 'bg-green-100 text-green-800' };
-        default: return { text: 'Unknown', color: 'bg-gray-100 text-gray-800' };
+        default: return { text: 'Unknown', color: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200' };
     }
 };
 
@@ -139,6 +139,7 @@ export const simulateAPIResponse = <T>(data: T, delay = 500): Promise<T> => {
 // ============ دوال localStorage ============
 export const storage = {
     set: (key: string, value: any): void => {
+        if (typeof window === 'undefined') return;
         try {
             localStorage.setItem(key, JSON.stringify(value));
         } catch (error) {
@@ -147,6 +148,7 @@ export const storage = {
     },
 
     get: (key: string): any => {
+        if (typeof window === 'undefined') return null;
         try {
             const item = localStorage.getItem(key);
             return item ? JSON.parse(item) : null;
@@ -157,6 +159,7 @@ export const storage = {
     },
 
     remove: (key: string): void => {
+        if (typeof window === 'undefined') return;
         try {
             localStorage.removeItem(key);
         } catch (error) {
@@ -165,6 +168,7 @@ export const storage = {
     },
 
     clear: (): void => {
+        if (typeof window === 'undefined') return;
         try {
             localStorage.clear();
         } catch (error) {

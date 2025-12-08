@@ -15,7 +15,7 @@ const HomeBox = ({ motionProps, onInstitutionClick, onIndividualClick }: HomeBox
     return (
         <motion.div
             {...motionProps}
-            className="w-[90%] h-[90%] md:w-[80%] md:h-[80%] p-5 relative flex flex-col gap-40 items-center justify-center rounded-[35px] shadow-[-1px_-3px_62px_11px_var(--color-bluelight-shade)]">
+            className="w-[90%] h-[90%] md:w-[80%] md:h-[80%] p-5 relative flex flex-col gap-8 sm:gap-12 md:gap-20 lg:gap-32 items-center justify-center rounded-[35px] shadow-[-1px_-3px_62px_11px_var(--color-bluelight-shade)]">
 
             <ThemeToggleDefault
                 className="absolute top-10 right-10"

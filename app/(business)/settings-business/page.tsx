@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import { Save, Trash2, Settings as SettingsIcon, Bell, MessageSquare, Activity } from "lucide-react";
 
@@ -29,14 +29,33 @@ export default function SettingsPage() {
     const [dirty, setDirty] = useState(false);
     const [saving, setSaving] = useState(false);
 
+    // Load settings from localStorage on mount
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const saved = localStorage.getItem('business_notifications');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                setNotifications(parsed);
+            } catch (e) {
+                console.error('Error loading settings:', e);
+            }
+        }
+    }, []);
+
     const toggleNotification = (key: keyof NotificationsState) => {
         setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
         setDirty(true);
     };
 
     const reset = () => {
-        setNotifications({ email: true, sms: false, highRiskAlerts: true });
-        setDirty(true);
+        if (confirm('Are you sure you want to reset all settings to default values?')) {
+            setNotifications({ email: true, sms: false, highRiskAlerts: true });
+            setDirty(true);
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('business_notifications');
+            }
+        }
     };
 
     const save = async () => {
@@ -44,10 +63,21 @@ export default function SettingsPage() {
 
         setSaving(true);
         try {
-            // TODO: call updateSettings from lib/api
+            // Save to localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('business_notifications', JSON.stringify(notifications));
+            }
             await new Promise((r) => setTimeout(r, 800));
             setDirty(false);
+            
             // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            successMsg.textContent = 'Settings saved successfully!';
+            document.body.appendChild(successMsg);
+            setTimeout(() => {
+                successMsg.remove();
+            }, 3000);
         } catch (err) {
             console.error(err);
             alert("Failed to save settings");

@@ -274,11 +274,11 @@ export const RegisterProvider = ({ children }: RegisterProviderProps) => {
       switch (state.userType) {
         case 'doctor':
           successMessage = `Welcome Dr. ${state.doctorData.doctorName}!`;
-          redirectPath = '/dashboard-doctor';
+          redirectPath = '/dashboard-business';
           break;
         case 'institution':
           successMessage = `Welcome ${state.institutionData.institutionName}!`;
-          redirectPath = '/dashboard-institution';
+          redirectPath = '/dashboard-business';
           break;
         case 'individual':
           successMessage = `Welcome ${state.individualData.fullName}!`;

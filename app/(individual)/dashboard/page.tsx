@@ -19,20 +19,31 @@ const DashboardPage = () => {
     const [generatingReport, setGeneratingReport] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
         const loadDashboardData = async () => {
             try {
                 setIsLoading(true);
                 await api.simulateLoading(1200);
                 const dashboardData = await api.getDashboardData();
-                setData(dashboardData);
+                if (mounted) {
+                    setData(dashboardData);
+                }
             } catch (error) {
                 console.error("Error loading dashboard:", error);
+                if (mounted) {
+                    // Keep loading state false to show error UI
+                }
             } finally {
-                setIsLoading(false);
+                if (mounted) {
+                    setIsLoading(false);
+                }
             }
         };
 
         loadDashboardData();
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     const handleGenerateReport = async () => {
@@ -55,7 +66,7 @@ const DashboardPage = () => {
         }
     };
 
-    if (isLoading || !data) {
+    if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center ">
                 <div className="flex flex-col items-center gap-4">
@@ -71,23 +82,48 @@ const DashboardPage = () => {
         );
     }
 
+    if (!data) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center max-w-md px-4"
+                >
+                    <Title className="text-2xl md:text-3xl text-bluelight-1 mb-4">
+                        Unable to Load Dashboard
+                    </Title>
+                    <p className="text-bluelight-1/70 mb-6">
+                        There was an error loading your dashboard data. Please try refreshing the page.
+                    </p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="px-6 py-3 bg-bluelight-2 text-white rounded-lg hover:bg-bluelight-1 transition-colors"
+                    >
+                        Refresh Page
+                    </button>
+                </motion.div>
+            </div>
+        );
+    }
+
 
     return (
-        <div className="min-h-screen bg-cover bg-center py-8 px-4">
+        <div className="min-h-screen bg-cover bg-center py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6">
             <div className="max-w-7xl mx-auto">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-                    <Title className="text-3xl md:text-4xl font-bold text-bluelight-1">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-4 sm:mb-6 md:mb-8">
+                    <Title className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-bluelight-1">
                         Patient Dashboard - {data.patient.name}
                     </Title>
-                    <p className="text-bluelight-1/70 mt-2">Last updated: {data.lastUpdated}</p>
+                    <p className="text-xs sm:text-sm md:text-base text-bluelight-1/70 mt-1 sm:mt-2">Last updated: {data.lastUpdated}</p>
                 </motion.div>
 
-                <div className="flex flex-col lg:flex-row gap-8">
+                <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 md:gap-8">
                     <div className="w-full lg:w-80 flex-shrink-0">
                         <UserProfileCard patient={data.patient} />
                     </div>
 
-                    <div className="flex-1 space-y-8">
+                    <div className="flex-1 space-y-4 sm:space-y-6 md:space-y-8">
                         <VitalSignsPanel vitals={data.vitals} />
                         <div className="border-t border-bluelight-1/30 my-8"></div>
                         <HealthTrendChart data={data.healthTrend} />
@@ -97,10 +133,10 @@ const DashboardPage = () => {
                             <RiskFactorsChart factors={data.riskFactors} />
                         </div>
 
-                        <div className="mt-8">
-                            <h3 className="text-2xl font-semibold text-bluelight-1 mb-6">Risk Factors</h3>
-                            <div className="bg-transparent border-2 border-bluelight-1/40 rounded-2xl p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="mt-4 sm:mt-6 md:mt-8">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-bluelight-1 mb-4 sm:mb-6">Risk Factors</h3>
+                            <div className="bg-transparent border-2 border-bluelight-1/40 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                     {data.riskFactors.map((factor, index) => (
                                         <div key={index} className="border border-bluelight-1/30 rounded-lg p-4">
                                             <div className="flex justify-between items-start mb-2">

@@ -59,15 +59,24 @@ export function UserTypeProvider({ children }: UserTypeProviderProps) {
     useEffect(() => {
         const loadUserData = () => {
             try {
-                const savedType = localStorage.getItem('userType') as UserType;
+                if (typeof window === 'undefined') {
+                    setIsLoading(false);
+                    return;
+                }
+
+                const savedType = localStorage.getItem('userType') as UserType | null;
                 const savedDetails = localStorage.getItem('userDetails');
                 const savedAuth = localStorage.getItem('isAuthenticated');
 
-                if (savedType) {
+                if (savedType && (savedType === 'individual' || savedType === 'business')) {
                     setUserType(savedType);
                 }
                 if (savedDetails) {
-                    setUserDetails(JSON.parse(savedDetails));
+                    try {
+                        setUserDetails(JSON.parse(savedDetails));
+                    } catch (parseError) {
+                        console.error('Error parsing user details:', parseError);
+                    }
                 }
                 if (savedAuth === 'true') {
                     setIsAuthenticated(true);
@@ -106,9 +115,11 @@ export function UserTypeProvider({ children }: UserTypeProviderProps) {
             setIsAuthenticated(true);
 
             // حفظ في localStorage
-            localStorage.setItem('userType', type);
-            localStorage.setItem('userDetails', JSON.stringify(mockUserDetails));
-            localStorage.setItem('isAuthenticated', 'true');
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('userType', type);
+                localStorage.setItem('userDetails', JSON.stringify(mockUserDetails));
+                localStorage.setItem('isAuthenticated', 'true');
+            }
 
         } catch (error) {
             console.error('Login failed:', error);
@@ -143,9 +154,11 @@ export function UserTypeProvider({ children }: UserTypeProviderProps) {
             setIsAuthenticated(true);
 
             // حفظ في localStorage
-            localStorage.setItem('userType', type);
-            localStorage.setItem('userDetails', JSON.stringify(newUserDetails));
-            localStorage.setItem('isAuthenticated', 'true');
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('userType', type);
+                localStorage.setItem('userDetails', JSON.stringify(newUserDetails));
+                localStorage.setItem('isAuthenticated', 'true');
+            }
 
         } catch (error) {
             console.error('Registration failed:', error);
@@ -162,9 +175,11 @@ export function UserTypeProvider({ children }: UserTypeProviderProps) {
         setIsAuthenticated(false);
 
         // حذف من localStorage
-        localStorage.removeItem('userType');
-        localStorage.removeItem('userDetails');
-        localStorage.removeItem('isAuthenticated');
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('userType');
+            localStorage.removeItem('userDetails');
+            localStorage.removeItem('isAuthenticated');
+        }
     };
 
     // القيمة التي يتم تمريرها

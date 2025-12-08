@@ -114,7 +114,7 @@ export default function Sidebar() {
                             variants={drawerVariants}
                             className="fixed top-0 left-0 z-50 h-full w-72 p-6"
                         >
-                            <div className="bg-white/95 dark:bg-[#0b1220]/95 border-2 border-bluelight-1/40 rounded-2xl px-4 py-6 shadow-lg h-full flex flex-col">
+                            <div className="bg-white/95 dark:bg-[#0b1220]/95 border-2 border-bluelight-1/40 dark:border-bluelight-1/20 rounded-2xl px-4 py-6 shadow-lg h-full flex flex-col">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#0eb2b1] to-[#0c9190] flex items-center justify-center text-white font-bold">UN</div>

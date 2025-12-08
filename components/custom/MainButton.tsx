@@ -46,8 +46,15 @@ const MainButton = ({
     return (
         <motion.div {...motionProps} className="inline-flex p-0 m-0">
             <button
-                className={cn("rounded-[20px] inline-flex flex-col relative overflow-hidden p-5 m-5 text-center group", className)}
-                onClick={onClick}
+                type={type}
+                disabled={disabled}
+                className={cn(
+                    "rounded-[20px] inline-flex flex-col relative overflow-hidden p-5 m-5 text-center group",
+                    disabled && "opacity-60 cursor-not-allowed",
+                    className
+                )}
+                onClick={disabled ? undefined : onClick}
+                aria-disabled={disabled}
             >
                 <span className={cn("rounded-[20px] absolute left-0 hoverEffect", background)}></span>
                 <span className="z-10">{children}</span>
