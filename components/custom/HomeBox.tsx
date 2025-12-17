@@ -1,15 +1,21 @@
 "use client";
-import { motion, MotionProps } from "motion/react";
+import { motion, MotionProps } from "framer-motion";
 import Title from "./Title";
 import SubTitle from "./SubTitle";
 import MainButton from "./MainButton";
 import ThemeToggleDefault from "./ThemeToggleDefault";
 
-const HomeBox = ({ motionProps }: { motionProps?: MotionProps }) => {
+interface HomeBoxProps {
+    motionProps?: MotionProps;
+    onInstitutionClick?: () => void;
+    onIndividualClick?: () => void;
+}
+
+const HomeBox = ({ motionProps, onInstitutionClick, onIndividualClick }: HomeBoxProps) => {
     return (
         <motion.div
             {...motionProps}
-            className="w-[90%] h-[90%] md:w-[80%] md:h-[80%] p-5 relative flex flex-col gap-40 items-center justify-center rounded-[35px] shadow-[-1px_-3px_62px_11px_var(--color-bluelight-shade)]">
+            className="w-[90%] h-[90%] md:w-[80%] md:h-[80%] p-5 relative flex flex-col gap-8 sm:gap-12 md:gap-20 lg:gap-32 items-center justify-center rounded-[35px] shadow-[-1px_-3px_62px_11px_var(--color-bluelight-shade)]">
 
             <ThemeToggleDefault
                 className="absolute top-10 right-10"
@@ -38,10 +44,11 @@ const HomeBox = ({ motionProps }: { motionProps?: MotionProps }) => {
                 </SubTitle>
             </div>
             <div className="actions text-center">
-                <MainButton href="/"
+                <MainButton
+
+                    onClick={onInstitutionClick}
                     className="text-[1rem] mb-0 w-85 md:text-[1.2rem] px-20 py-4 border bg-bluelight-2 hover:bg-transparent"
                     background="bg-bluelight-2 w-full h-full bottom-0 group-hover:bottom-full"
-                    // classHover="backdrop-blur-sm bg-bluelight-2/10 w-full h-full top-full group-hover:top-0"
                     motionProps={{
                         initial: { x: -50, opacity: 0 },
                         animate: { x: 0, opacity: 1 },
@@ -50,7 +57,9 @@ const HomeBox = ({ motionProps }: { motionProps?: MotionProps }) => {
                 >
                     Continue as <br /> Institution / Doctor
                 </MainButton>
-                <MainButton href="/"
+                <MainButton
+
+                    onClick={onIndividualClick}
                     className="border w-85 text-[1rem] md:text-[1.2rem] px-20 py-4 backdrop-blur-sm bg-bluelight-2/10"
                     classHover="bg-bluelight-2 w-full h-full top-full group-hover:top-0"
                     motionProps={{

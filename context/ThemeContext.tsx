@@ -11,22 +11,32 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [theme, setTheme] = useState<Theme>("dark");
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
+        // تحميل الـ theme من localStorage بعد التحميل
         const savedTheme = localStorage.getItem("theme") as Theme | null;
-        if (savedTheme) {
-            setTimeout(() => setTheme(savedTheme), 0);
+        if (savedTheme && (savedTheme === "light" || savedTheme === "dark")) {
+            setTheme(savedTheme);
         }
     }, []);
 
-
     useEffect(() => {
-        document.documentElement.classList.toggle("dark", theme === "dark");
+        if (!mounted) return;
+        // تطبيق الـ theme على الـ document
+        const root = document.documentElement;
+        if (theme === "dark") {
+            root.classList.add("dark");
+        } else {
+            root.classList.remove("dark");
+        }
         localStorage.setItem("theme", theme);
-    }, [theme]);
+    }, [theme, mounted]);
 
-    const toggleTheme = () =>
+    const toggleTheme = () => {
         setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    };
 
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>

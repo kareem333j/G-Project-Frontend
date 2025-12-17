@@ -1,6 +1,6 @@
 "use client";
 import { cn } from '@/lib/utils'
-import { motion, MotionProps } from "motion/react";
+import { motion, MotionProps } from "framer-motion";
 
 
 const SubTitle = ({ children, className, motionProps }: { children: React.ReactNode, className?: string, motionProps?: MotionProps }) => {
